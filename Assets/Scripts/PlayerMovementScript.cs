@@ -50,7 +50,7 @@ public class PlayerMovementScript : MonoBehaviour
         }else if (col.gameObject.CompareTag("Enemy"))
         {
             GameObject hurtObject = Instantiate(playerHurtParticle,transform.position,Quaternion.identity,null);
-            UpdateHealth(-20f);
+            UpdateHealth(-40f);
         }
     }
 

@@ -99,8 +99,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92801d68980899b4596ed59f6cf9b7c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startPosition: {x: -0.4, y: 0.5}
-  endPosition: {x: -1.13, y: 0.5}
+  startPosition: {x: 1.93, y: 1.55}
+  endPosition: {x: 3.09, y: 1.55}
   movementTime: 1
 --- !u!50 &1239327254911392396
 Rigidbody2D:
