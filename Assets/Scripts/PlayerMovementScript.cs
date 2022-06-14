@@ -17,10 +17,9 @@ public class PlayerMovementScript : MonoBehaviour
     public ParticleSystem.MainModule particleMain;
     public GameObject playerHurtParticle;
 
-    public float currentHealth;
-    public float maxHealth = 200f;
-    public Image healthImage;
-    public TextMeshProUGUI coinCountText;
+    public int currentHeart;
+    public int maxHeart = 3;
+    public UIManager uıManager;
 
     private int collectedCoin;
 
@@ -29,8 +28,9 @@ public class PlayerMovementScript : MonoBehaviour
     {
         objRigidBody = GetComponent<Rigidbody2D>();
         particleMain = playerMovementParticleSystem.main;
-        collectedCoin = 0;
-        currentHealth = maxHealth;
+        currentHeart = maxHeart;
+
+        uıManager = FindObjectOfType<UIManager>();
     }
 
     private void Update()
@@ -50,25 +50,29 @@ public class PlayerMovementScript : MonoBehaviour
         }else if (col.gameObject.CompareTag("Enemy"))
         {
             GameObject hurtObject = Instantiate(playerHurtParticle,transform.position,Quaternion.identity,null);
-            UpdateHealth(-40f);
+            UpdateHealth(-1);
         }
     }
 
     public void RefreshHealth()
     {
-        UpdateHealth(maxHealth - currentHealth);
+        UpdateHealth(maxHeart-currentHeart);
     }
 
-    public void UpdateHealth(float newHealth)
+    public void UpdateHealth(int newHealth)
     {
-        currentHealth += newHealth;
-        healthImage.fillAmount = currentHealth / maxHealth;
+        currentHeart += newHealth;
+        if (currentHeart <= 0)
+        {
+            uıManager.OpenLoseScreen();
+        }
+        uıManager.UpdateHeartImage(currentHeart);
     }
 
     public void CoinCollection(int coinAmount)
     {
         collectedCoin += coinAmount;
-        coinCountText.text = collectedCoin.ToString();
+        uıManager.UpdateCoinCollectionText(collectedCoin);
     }
 
     private void FixedUpdate()
