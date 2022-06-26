@@ -21,11 +21,14 @@ public class PlayerMovementScript : MonoBehaviour
     public int maxHeart = 3;
     public UIManager uıManager;
 
+    public Animator animating;
+
     private int collectedCoin;
 
     // Start is called before the first frame update
     void Start()
     {
+        animating.GetComponent<Animator>();
         objRigidBody = GetComponent<Rigidbody2D>();
         particleMain = playerMovementParticleSystem.main;
         currentHeart = maxHeart;
@@ -39,6 +42,24 @@ public class PlayerMovementScript : MonoBehaviour
         {
             isJumping = true;
             playerMovementParticleSystem.Stop();
+        }
+
+        if (Input.GetKey(KeyCode.LeftArrow) 
+            || Input.GetKey(KeyCode.RightArrow)
+            || Input.GetKey(KeyCode.UpArrow))
+        {
+            if (Input.GetKeyDown(KeyCode.RightArrow))
+            {
+                animating.SetBool("isMovingRight",true);
+            } else if (Input.GetKeyDown(KeyCode.LeftArrow))
+            {
+                animating.SetBool("isMovingLeft",true);
+            }
+        }
+        else
+        {
+            animating.SetBool("isMovingRight",false);
+            animating.SetBool("isMovingLeft",false);
         }
     }
 
