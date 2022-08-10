@@ -5,18 +5,18 @@ using UnityEngine;
 
 public class FinishFlag : MonoBehaviour
 {
-
-    public UIManager uiManager;
+    public AudioSource winnerAudioSource;
     private void Start()
     {
-        uiManager = FindObjectOfType<UIManager>();
+        winnerAudioSource = GetComponent<AudioSource>();
     }
 
     private void OnTriggerEnter2D(Collider2D col)
     {
         if (col.CompareTag("Player"))
         {
-            uiManager.OpenWinScreen();
+            UIManager.Instance.OpenWinScreen();
+            winnerAudioSource.Play();
         }
     }
 }

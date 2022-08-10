@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class PlayerMovementScript : MonoBehaviour
@@ -17,13 +18,15 @@ public class PlayerMovementScript : MonoBehaviour
     public ParticleSystem.MainModule particleMain;
     public GameObject playerHurtParticle;
 
-    public int currentHeart;
-    public int maxHeart = 3;
-    public UIManager uıManager;
+    public UnityAction<int> onCoinCollection;
+    public UnityAction<int> onHealthChanged;
 
     public Animator animating;
+    
+    public AudioSource playerAudioSource;
 
-    private int collectedCoin;
+    public AudioClip JumpAudio;
+    public AudioClip HitByEnemy;
 
     // Start is called before the first frame update
     void Start()
@@ -31,9 +34,7 @@ public class PlayerMovementScript : MonoBehaviour
         animating.GetComponent<Animator>();
         objRigidBody = GetComponent<Rigidbody2D>();
         particleMain = playerMovementParticleSystem.main;
-        currentHeart = maxHeart;
-
-        uıManager = FindObjectOfType<UIManager>();
+        PlayerDataManager.Instance.playerData.currentHeart = PlayerDataManager.Instance.playerData.maxHeart;
     }
 
     private void Update()
@@ -42,6 +43,8 @@ public class PlayerMovementScript : MonoBehaviour
         {
             isJumping = true;
             playerMovementParticleSystem.Stop();
+            animating.SetTrigger("Jumping");
+            playerAudioSource.PlayOneShot(JumpAudio);
         }
 
         if (Input.GetKey(KeyCode.LeftArrow) 
@@ -68,32 +71,28 @@ public class PlayerMovementScript : MonoBehaviour
         if (col.gameObject.CompareTag("Terrain"))
         {
             playerMovementParticleSystem.Play();
+            animating.SetTrigger("ReturnToIdle");
         }else if (col.gameObject.CompareTag("Enemy"))
         {
             GameObject hurtObject = Instantiate(playerHurtParticle,transform.position,Quaternion.identity,null);
+            playerAudioSource.PlayOneShot(HitByEnemy);
             UpdateHealth(-1);
         }
     }
 
     public void RefreshHealth()
     {
-        UpdateHealth(maxHeart-currentHeart);
+        UpdateHealth(PlayerDataManager.Instance.playerData.maxHeart-PlayerDataManager.Instance.playerData.currentHeart);
     }
 
     public void UpdateHealth(int newHealth)
     {
-        currentHeart += newHealth;
-        if (currentHeart <= 0)
-        {
-            uıManager.OpenLoseScreen();
-        }
-        uıManager.UpdateHeartImage(currentHeart);
+        onHealthChanged?.Invoke(newHealth);
     }
 
     public void CoinCollection(int coinAmount)
     {
-        collectedCoin += coinAmount;
-        uıManager.UpdateCoinCollectionText(collectedCoin);
+        onCoinCollection?.Invoke(coinAmount);
     }
 
     private void FixedUpdate()
@@ -108,5 +107,10 @@ public class PlayerMovementScript : MonoBehaviour
         float horizontalmovement = Input.GetAxis("Horizontal");
         Vector3 movement = new Vector3(horizontalmovement, 0, 0);
         objRigidBody.AddForce(movement*SpeedMultiplier, ForceMode2D.Force);
+
+        if (objRigidBody.velocity.y < -2f)
+        {
+            animating.SetTrigger("Falling");
+        }
     }
 }
